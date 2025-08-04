@@ -22,7 +22,7 @@ jobs:
           FULL: >
             [
               "",
-              "--disable-zipfs",
+              "--disable-zipfs"
             ]
           PARTIAL: >
             [
