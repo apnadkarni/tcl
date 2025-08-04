@@ -21,8 +21,7 @@ jobs:
           # DO NOT CHANGE THIS MATRIX SPEC; IT AFFECTS OUR COST CONTROLS
           FULL: >
             [
-              "",
-              "--disable-zipfs"
+              ""
             ]
           PARTIAL: >
             [
