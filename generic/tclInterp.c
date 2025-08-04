@@ -445,6 +445,7 @@ Tcl_Init(
 "    set errors {}\n"
 	    "puts ED:[encoding dirs]\n"
 "    foreach script $scripts {\n"
+"puts SCRIPT:$script\n"
 "	if {[set tcl_library [eval $script]] eq \"\"} continue\n"
 	    "puts A:$tcl_library\n"
 "	set tclfile [file join $tcl_library init.tcl]\n"
