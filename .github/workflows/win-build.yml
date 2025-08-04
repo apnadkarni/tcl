@@ -1,11 +1,6 @@
 name: Windows
 on:
-  push:
-    branches:
-    - "main"
-    - "core-9-0-branch"
-    tags:
-    - "core-*"
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
