@@ -455,7 +455,7 @@ Tcl_Init(
 "		append errors \"[dict get $opts -errorinfo]\n\"\n"
 "		continue\n"
 "	    }\n"
-	    "puts "C:$tclfile\n"
+	    "puts C:$tclfile\n"
 	      "puts ED2:[encoding dirs]\n"
 "	    unset -nocomplain tclDefaultLibrary\n"
 "	    return\n"
