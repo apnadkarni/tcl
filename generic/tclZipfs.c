@@ -1726,6 +1726,15 @@ ZipFSOpenArchive(
     zf->ptrToFree = NULL;
     zf->passBuf[0] = 0;
 
+    struct stat st;
+    if (stat(zipname, &st) != 0) {
+        APNDebugPrint("stat returned error");
+    } else {
+        APNDebugPrint("stat returned");
+        APNDebugPrint(S_ISREG(st.st_mode) ? "regular" : "not regular");
+        APNDebugPrint(S_ISDIR(st.st_mode) ? "dir" : "not dir");
+    }
+
     /*
      * Actually open the file.
      */
@@ -6428,6 +6437,13 @@ ZipfsAppHookFindTclInit(
     int found;
 
     APNDebugPrint("ZipfsAppHookFindTclInit enter");
+    APNDebugPrint(archive);
+    char rpath[PATH_MAX] = {0};
+    if (realpath(archive, rpath) != NULL)
+        archive = rpath;
+    APNDebugPrint("ZipfsAppHookFindTclInit realpath:");
+    APNDebugPrint(archive ? archive : "rpath = null");
+
     
     if (zipfs_literal_tcl_library) {
         APNDebugPrint("ZipfsAppHookFindTclInit exit - zipfs_literal_tcl_library exists");
