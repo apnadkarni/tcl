@@ -1727,12 +1727,16 @@ ZipFSOpenArchive(
     zf->passBuf[0] = 0;
 
     struct stat st;
-    if (stat(zipname, &st) != 0) {
+    if (lstat(zipname, &st) != 0) {
         APNDebugPrint("stat returned error");
     } else {
         APNDebugPrint("stat returned");
         APNDebugPrint(S_ISREG(st.st_mode) ? "regular" : "not regular");
         APNDebugPrint(S_ISDIR(st.st_mode) ? "dir" : "not dir");
+        APNDebugPrint(S_ISLNK(st.st_mode) ? "link" : "not link");
+        char nbuf[100];
+        sprintf(nbuf, "size %d", (int)st.st_size);
+        APNDebugPrint(nbuf);
     }
 
     /*
