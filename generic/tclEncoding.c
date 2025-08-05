@@ -293,6 +293,9 @@ static const Tcl_ObjType encodingType = {
 
 void APNDebugPrint(const char *s)
 {
+    #if 1
+    return;
+        #else
 #ifdef _WIN32
     int pid = GetCurrentProcessId();
     int parent = 0
@@ -305,6 +308,7 @@ void APNDebugPrint(const char *s)
     Encoding *de = (Encoding *)defaultEncoding;
     const char *deName = de ? de->name : "null";
     printf("%d/%d %-30s system=%s, default=%s\n", pid, parent, s, seName, deName);
+    #endif
 }
 /*
  *----------------------------------------------------------------------
@@ -998,25 +1002,31 @@ Tcl_SetSystemEncoding(
 				 * to reset to default encoding. */
 {
     Tcl_Encoding encoding;
-    Encoding *encodingPtr;
     APNDebugPrint("Tcl_SetSystemEncoding enter");
-    printf("name=%s\n", name ? name : "null");
-    if (!name || !*name) {
-	Tcl_MutexLock(&encodingMutex);
-	encoding = defaultEncoding;
-	encodingPtr = (Encoding *) encoding;
-	encodingPtr->refCount++;
-	Tcl_MutexUnlock(&encodingMutex);
+
+    Tcl_MutexLock(&encodingMutex);
+    if (name == NULL || name[0] == '\0') {
+        if (defaultEncoding == systemEncoding) {
+            Tcl_MutexUnlock(&encodingMutex);
+            return TCL_OK;
+        }
+        encoding = defaultEncoding;
+        ((Encoding *)encoding)->refCount += 1;
     } else {
 	encoding = Tcl_GetEncoding(interp, name);
+        if (encoding == systemEncoding) {
+            FreeEncoding(encoding);
+            Tcl_MutexUnlock(&encodingMutex);
+            return TCL_OK;
+        }
 	if (encoding == NULL) {
             printf("Could not get encoding for %s\n", name);
             APNDebugPrint("Tcl_SetSystemEncoding Error exit");
+            Tcl_MutexUnlock(&encodingMutex);
 	    return TCL_ERROR;
 	}
     }
-
-    Tcl_MutexLock(&encodingMutex);
+    assert(encoding != systemEncoding);
     FreeEncoding(systemEncoding);
     systemEncoding = encoding;
     Tcl_MutexUnlock(&encodingMutex);
@@ -1779,6 +1789,8 @@ OpenEncodingFileChannel(
     Tcl_Size i, numDirs;
 
     TclListObjGetElements(NULL, searchPath, &numDirs, &dir);
+    APNDebugPrint("OpenEncodingFileChannel");
+    APNDebugPrint(searchPath ? Tcl_GetString(searchPath) : "searchPath=null");
     Tcl_IncrRefCount(fileNameObj);
     TclDictGet(NULL, map, name, &directory);
 
@@ -1796,7 +1808,7 @@ OpenEncodingFileChannel(
 	}
 	if (!verified) {
 	    const char *dirString = TclGetString(directory);
-
+            
 	    for (i=0; i<numDirs && !verified; i++) {
 		if (strcmp(dirString, TclGetString(dir[i])) == 0) {
 		    verified = 1;

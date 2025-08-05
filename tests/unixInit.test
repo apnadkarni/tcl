@@ -121,8 +121,7 @@ test unixInit-3.2 {TclpSetInitialEncodings} -setup {
     set f [open "|[list [interpreter]]" w+]
     chan configure $f -buffering none
     puts $f {puts [encoding system]; exit}
-    #set enc [gets $f]
-    set enc [read $f]
+    set enc [gets $f]
     close $f
     set enc
 } -cleanup {

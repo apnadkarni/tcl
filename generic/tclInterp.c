@@ -407,7 +407,6 @@ Tcl_Init(
 "  proc tclInit {} {\n"
 "    global tcl_libPath tcl_library env tclDefaultLibrary\n"
 "    rename tclInit {}\n"
-                        "puts encodingsystem1:[encoding system]\n"
 "    if {[info exists tcl_library]} {\n"
 "	set scripts {{set tcl_library}}\n"
 "    } else {\n"
@@ -445,27 +444,15 @@ Tcl_Init(
 "    }\n"
 "    set dirs {}\n"
 "    set errors {}\n"
-	    "puts ED:[encoding dirs]\n"
-"    foreach script $scripts {\n"
-"        puts -----\n"
-"        puts $script\n"
-"        puts -----\n"
-"    }\n"
 "    foreach script $scripts {\n"
 "	if {[set tcl_library [eval $script]] eq \"\"} continue\n"
-	    "puts A:$tcl_library\n"
 "	set tclfile [file join $tcl_library init.tcl]\n"
 "	if {[file exists $tclfile]} {\n"
-	    "puts B:$tclfile\n"
 "	    if {[catch {uplevel #0 [list source $tclfile]} msg opts]} {\n"
 "		append errors \"$tclfile: $msg\n\"\n"
 "		append errors \"[dict get $opts -errorinfo]\n\"\n"
 "		continue\n"
 "	    }\n"
-	    "puts C:$tclfile\n"
-	      "puts ED2:[encoding dirs]\n"
-		  "puts tcl_library:$tcl_library\n"
-                        "puts encodingsystem2:[encoding system]\n"
 "	    unset -nocomplain tclDefaultLibrary\n"
 "	    return\n"
 "	}\n"
@@ -481,6 +468,7 @@ Tcl_Init(
 "}\n"
 "tclInit", TCL_INDEX_NONE, 0);
     APNDebugPrint("Tcl_Init after Tcl_EvalEx");
+    TclpSetInitialEncodings();
 end:
     *names = (*names)->nextPtr;
     return result;

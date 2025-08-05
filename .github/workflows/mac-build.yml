@@ -55,7 +55,8 @@ jobs:
         timeout-minutes: 5
       - name: Build
         run: |
-          make -j4 all tcltest
+          make all tcltest
+          cat Makefile
         env:
           CFLAGS: -arch x86_64 -arch arm64
         timeout-minutes: 15
