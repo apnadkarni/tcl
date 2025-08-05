@@ -291,25 +291,6 @@ static const Tcl_ObjType encodingType = {
 	(encoding) = irPtr ? (Tcl_Encoding)irPtr->twoPtrValue.ptr1 : NULL; \
     } while (0)
 
-void APNDebugPrint(const char *s)
-{
-    #if 1
-    return;
-        #else
-#ifdef _WIN32
-    int pid = GetCurrentProcessId();
-    int parent = 0
-#else
-    int pid = getpid();
-    int parent = getppid();
-#endif
-    Encoding *se = (Encoding *)systemEncoding;
-    const char *seName = se ? se->name : "null";
-    Encoding *de = (Encoding *)defaultEncoding;
-    const char *deName = de ? de->name : "null";
-    printf("%d/%d %-30s system=%s, default=%s\n", pid, parent, s, seName, deName);
-    #endif
-}
 /*
  *----------------------------------------------------------------------
  *
@@ -1002,7 +983,6 @@ Tcl_SetSystemEncoding(
 				 * to reset to default encoding. */
 {
     Tcl_Encoding encoding;
-    APNDebugPrint("Tcl_SetSystemEncoding enter");
 
     Tcl_MutexLock(&encodingMutex);
     if (name == NULL || name[0] == '\0') {
@@ -1020,8 +1000,6 @@ Tcl_SetSystemEncoding(
             return TCL_OK;
         }
 	if (encoding == NULL) {
-            printf("Could not get encoding for %s\n", name);
-            APNDebugPrint("Tcl_SetSystemEncoding Error exit");
             Tcl_MutexUnlock(&encodingMutex);
 	    return TCL_ERROR;
 	}
@@ -1031,7 +1009,6 @@ Tcl_SetSystemEncoding(
     systemEncoding = encoding;
     Tcl_MutexUnlock(&encodingMutex);
     Tcl_FSMountsChanged(NULL);
-    APNDebugPrint("Tcl_SetSystemEncoding exit");
 
     return TCL_OK;
 }
@@ -1745,14 +1722,9 @@ Tcl_FindExecutable(
     const char *argv0)		/* The value of the application's argv[0]
 				 * (native). */
 {
-    APNDebugPrint("Tcl_FindExecutable enter");
     const char *version = Tcl_InitSubsystems();
-    APNDebugPrint("Tcl_FindExecutable after Tcl_InitSubsystems");
-
     TclpSetInitialEncodings();
-    APNDebugPrint("Tcl_FindExecutable after TclpSetInitialEncodings");
     TclpFindExecutable(argv0);
-    APNDebugPrint("Tcl_FindExecutable exit");
     return version;
 }
 
@@ -1789,8 +1761,6 @@ OpenEncodingFileChannel(
     Tcl_Size i, numDirs;
 
     TclListObjGetElements(NULL, searchPath, &numDirs, &dir);
-    APNDebugPrint("OpenEncodingFileChannel");
-    APNDebugPrint(searchPath ? Tcl_GetString(searchPath) : "searchPath=null");
     Tcl_IncrRefCount(fileNameObj);
     TclDictGet(NULL, map, name, &directory);
 

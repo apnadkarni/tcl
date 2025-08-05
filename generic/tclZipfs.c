@@ -1500,7 +1500,6 @@ ZipFSFindTOC(
     const unsigned char *eocdPtr; /* End of Central Directory Record */
     const unsigned char *start = zf->data;
     const unsigned char *end = zf->data + zf->length;
-    APNDebugPrint("ZipFSFindTOC enter");
 
     /*
      * Scan backwards from the end of the file for the signature. This is
@@ -1531,7 +1530,6 @@ ZipFSFindTOC(
 	}
 	ZIPFS_ERROR(interp, "archive directory end signature not found");
 	ZIPFS_ERROR_CODE(interp, "END_SIG");
-    APNDebugPrint("ZipFSFindTOC exit TCL_ERROR dir end not found");
 
   error:
 	ZipFSCloseArchive(interp, zf);
@@ -1557,7 +1555,6 @@ ZipFSFindTOC(
 	}
 	ZIPFS_ERROR(interp, "empty archive");
 	ZIPFS_ERROR_CODE(interp, "EMPTY");
-        APNDebugPrint("ZipFSFindTOC exit TCL_ERROR empty archive");
 	goto error;
     }
 
@@ -1590,7 +1587,6 @@ ZipFSFindTOC(
 	}
 	ZIPFS_ERROR(interp, "archive directory truncated");
 	ZIPFS_ERROR_CODE(interp, "NO_DIR");
-        APNDebugPrint("ZipFSFindTOC exit TCL_ERROR archive dir truncated");
 	goto error;
     }
 
@@ -1618,13 +1614,11 @@ ZipFSFindTOC(
 	if ((dirEntry-cdirStart) + ZIP_CENTRAL_HEADER_LEN > (ptrdiff_t)zf->directorySize) {
 	    ZIPFS_ERROR(interp, "truncated directory");
 	    ZIPFS_ERROR_CODE(interp, "TRUNC_DIR");
-            APNDebugPrint("ZipFSFindTOC exit TCL_ERROR archive dir truncated 2");
 	    goto error;
 	}
 	if (ZipReadInt(start, end, dirEntry) != ZIP_CENTRAL_HEADER_SIG) {
 	    ZIPFS_ERROR(interp, "wrong header signature");
 	    ZIPFS_ERROR_CODE(interp, "HDR_SIG");
-            APNDebugPrint("ZipFSFindTOC exit TCL_ERROR wrong head sig");
 	    goto error;
 	}
 	int pathlen = ZipReadShort(start, end, dirEntry + ZIP_CENTRAL_PATHLEN_OFFS);
@@ -1636,7 +1630,6 @@ ZipFSFindTOC(
 		ZipReadInt(start, end, localP) != ZIP_LOCAL_HEADER_SIG) {
 	    ZIPFS_ERROR(interp, "Failed to find local header");
 	    ZIPFS_ERROR_CODE(interp, "LCL_HDR");
-            APNDebugPrint("ZipFSFindTOC exit TCL_ERROR local headejr");
 	    goto error;
 	}
 	if (localhdr_off < minoff) {
@@ -1648,7 +1641,6 @@ ZipFSFindTOC(
 	/* file count and dir size do not match */
 	ZIPFS_ERROR(interp, "short file count");
 	ZIPFS_ERROR_CODE(interp, "FILE_COUNT");
-        APNDebugPrint("ZipFSFindTOC exit TCL_ERROR short file count");
 	goto error;
     }
 
@@ -1710,8 +1702,6 @@ ZipFSOpenArchive(
 {
     size_t i;
     void *handle;
-    APNDebugPrint("ZipFSOpenArchive enter");
-    APNDebugPrint(zipname);
     zf->nameLength = 0;
     zf->isMemBuffer = 0;
 #ifdef _WIN32
@@ -1726,27 +1716,12 @@ ZipFSOpenArchive(
     zf->ptrToFree = NULL;
     zf->passBuf[0] = 0;
 
-    struct stat st;
-    if (lstat(zipname, &st) != 0) {
-        APNDebugPrint("stat returned error");
-    } else {
-        APNDebugPrint("stat returned");
-        APNDebugPrint(S_ISREG(st.st_mode) ? "regular" : "not regular");
-        APNDebugPrint(S_ISDIR(st.st_mode) ? "dir" : "not dir");
-        APNDebugPrint(S_ISLNK(st.st_mode) ? "link" : "not link");
-        char nbuf[100];
-        sprintf(nbuf, "size %d", (int)st.st_size);
-        APNDebugPrint(nbuf);
-    }
-
     /*
      * Actually open the file.
      */
 
     zf->chan = Tcl_OpenFileChannel(interp, zipname, "rb", 0);
     if (!zf->chan) {
-        APNDebugPrint("ZipFSOpenArchive - could not open zipname");
-        APNDebugPrint(zipname? zipname : "zipname=null");
 	return TCL_ERROR;
     }
 
@@ -1761,7 +1736,6 @@ ZipFSOpenArchive(
 
     if (Tcl_GetChannelHandle(zf->chan, TCL_READABLE, &handle) == TCL_OK) {
 	if (ZipMapArchive(interp, zf, handle) != TCL_OK) {
-            APNDebugPrint("ZipFSOpenArchive - ZipMapArchive failed");
 	    goto error;
 	}
     } else {
@@ -1807,7 +1781,6 @@ ZipFSOpenArchive(
     Tcl_Close(interp, zf->chan);
     zf->chan = NULL;
 
-    APNDebugPrint("ZipFSOpenArchive calling ZipFSFindOTC");
     return ZipFSFindTOC(interp, needZip, zf);
 
     /*
@@ -1817,7 +1790,6 @@ ZipFSOpenArchive(
 
   error:
     ZipFSCloseArchive(interp, zf);
-    APNDebugPrint("ZipFSOpenArchive returning TCL_ERROR");
     return TCL_ERROR;
 }
 
@@ -2430,9 +2402,6 @@ TclZipfs_Mount(
 {
     ZipFile *zf;
     int ret;
-    APNDebugPrint("TclZipfs_Mount enter");
-    APNDebugPrint(zipname? zipname : "zipname=null");
-    APNDebugPrint(mountPoint? mountPoint : "mountPoint=null");
     ReadLock();
     if (!ZipFS.initialized) {
 	ZipfsSetup();
@@ -2453,7 +2422,6 @@ TclZipfs_Mount(
     ret = NormalizeMountPoint(interp, mountPoint, &ds);
     if (ret != TCL_OK) {
 	Unlock();
-        APNDebugPrint("NormalizeMountPoint failed");
 	return ret;
     }
     mountPoint = Tcl_DStringValue(&ds);
@@ -4409,13 +4377,11 @@ TclZipfsLocateTclLibrary(void)
     }
 #elif !defined(NO_DLFCN_H)
     Dl_info dlinfo;
-    APNDebugPrint("TclZipfsLocateTclLibrary calling dladdr");
     if (dladdr((const void *)TclZipfs_TclLibrary, &dlinfo) && (dlinfo.dli_fname != NULL)
 	    && (ZipfsAppHookFindTclInit(dlinfo.dli_fname) == TCL_OK)) {
 	goto unlock_and_return;
     }
 #else
-    APNDebugPrint("TclZipfsLocateTclLibrary no-dladdr " CFG_RUNTIME_LIBDIR "/" CFG_RUNTIME_DLLFILE);
     if (ZipfsAppHookFindTclInit(CFG_RUNTIME_LIBDIR "/" CFG_RUNTIME_DLLFILE) == TCL_OK) {
 	goto unlock_and_return;
     }
@@ -6440,22 +6406,16 @@ ZipfsAppHookFindTclInit(
     Tcl_Obj *vfsInitScript;
     int found;
 
-    APNDebugPrint("ZipfsAppHookFindTclInit enter");
-    APNDebugPrint(archive);
     char rpath[PATH_MAX] = {0};
     if (realpath(archive, rpath) != NULL)
         archive = rpath;
-    APNDebugPrint("ZipfsAppHookFindTclInit realpath:");
-    APNDebugPrint(archive ? archive : "rpath = null");
 
     
     if (zipfs_literal_tcl_library) {
-        APNDebugPrint("ZipfsAppHookFindTclInit exit - zipfs_literal_tcl_library exists");
             return TCL_ERROR;
     }
     if (TclZipfs_Mount(NULL, archive, ZIPFS_ZIP_MOUNT, NULL)) {
 	/* Either the file doesn't exist or it is not a zip archive */
-        APNDebugPrint("ZipfsAppHookFindTclInit exit - mount failed");
 	return TCL_ERROR;
     }
 
@@ -6464,7 +6424,6 @@ ZipfsAppHookFindTclInit(
     found = Tcl_FSAccess(vfsInitScript, F_OK);
     Tcl_DecrRefCount(vfsInitScript);
     if (found == 0) {
-        APNDebugPrint("ZipfsAppHookFindTclInit exit - init.tcl in " ZIPFS_ZIP_MOUNT);
 	zipfs_literal_tcl_library = ZIPFS_ZIP_MOUNT;
 	return TCL_OK;
     }
@@ -6475,11 +6434,9 @@ ZipfsAppHookFindTclInit(
     found = Tcl_FSAccess(vfsInitScript, F_OK);
     Tcl_DecrRefCount(vfsInitScript);
     if (found == 0) {
-        APNDebugPrint("ZipfsAppHookFindTclInit exit - init.tcl in " ZIPFS_ZIP_MOUNT "/tcl_library");
 	zipfs_literal_tcl_library = ZIPFS_ZIP_MOUNT "/tcl_library";
 	return TCL_OK;
     }
-        APNDebugPrint("ZipfsAppHookFindTclInit exit - TCL_ERROR");
 
     return TCL_ERROR;
 }
@@ -6603,13 +6560,9 @@ TclZipfs_AppHook(
      * Look for init.tcl in one of the locations mounted later in this
      * function. Errors ignored as other locations may be available.
      */
-    APNDebugPrint("TclZipfs_AppHook before calling TclZipfsLocateTclLibrary");
     if (TclZipfsLocateTclLibrary() == TCL_OK) {
-        APNDebugPrint("TclZipfs_AppHook: TclZipfsLocateTclLibrary = OK");
 	(void) TclZipfsInitEncodingDirs();
-        APNDebugPrint("TclZipfs_AppHook: After calling TclZipfsInitEncodingDirs");
     }
-    APNDebugPrint("TclZipfs_AppHook before calling TclZipfs_Mount");
 
     if (!TclZipfs_Mount(NULL, archive, ZIPFS_APP_MOUNT, NULL)) {
 	int found;

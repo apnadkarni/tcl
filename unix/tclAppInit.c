@@ -124,7 +124,6 @@ int
 Tcl_AppInit(
     Tcl_Interp *interp)		/* Interpreter for application. */
 {
-    APNDebugPrint("Tcl_AppInit enter");
     if (Tcl_Init(interp) == TCL_ERROR) {
 	return TCL_ERROR;
     }
@@ -174,7 +173,6 @@ Tcl_AppInit(
     (void) Tcl_EvalEx(interp,
 	    "set tcl_rcFileName [file tildeexpand ~/" INITFILENAME "]",
 	    -1, TCL_EVAL_GLOBAL);
-    APNDebugPrint("Tcl_AppInit exit");
     return TCL_OK;
 }
 

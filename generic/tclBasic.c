@@ -824,7 +824,6 @@ Tcl_CreateInterp(void)
     CallFrame *framePtr;
     const char *version = Tcl_InitSubsystems();
 
-    APNDebugPrint("Tcl_CreateInterp Enter");
     /*
      * Panic if someone updated the CallFrame structure without also updating
      * the Tcl_CallFrame structure (or vice versa).
@@ -1342,7 +1341,6 @@ Tcl_CreateInterp(void)
     }
 
     TOP_CB(iPtr) = NULL;
-    APNDebugPrint("Tcl_CreateInterp exit");
     return interp;
 }
 
