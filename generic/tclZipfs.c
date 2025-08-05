@@ -1711,6 +1711,7 @@ ZipFSOpenArchive(
     size_t i;
     void *handle;
     APNDebugPrint("ZipFSOpenArchive enter");
+    APNDebugPrint(zipname);
     zf->nameLength = 0;
     zf->isMemBuffer = 0;
 #ifdef _WIN32
