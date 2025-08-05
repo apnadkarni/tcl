@@ -4378,11 +4378,13 @@ TclZipfsLocateTclLibrary(void)
     }
 #elif !defined(NO_DLFCN_H)
     Dl_info dlinfo;
+    APNDebugPrint("TclZipfsLocateTclLibrary calling dladdr");
     if (dladdr((const void *)TclZipfs_TclLibrary, &dlinfo) && (dlinfo.dli_fname != NULL)
 	    && (ZipfsAppHookFindTclInit(dlinfo.dli_fname) == TCL_OK)) {
 	goto unlock_and_return;
     }
 #else
+    APNDebugPrint("TclZipfsLocateTclLibrary no-dladdr " CFG_RUNTIME_LIBDIR "/" CFG_RUNTIME_DLLFILE);
     if (ZipfsAppHookFindTclInit(CFG_RUNTIME_LIBDIR "/" CFG_RUNTIME_DLLFILE) == TCL_OK) {
 	goto unlock_and_return;
     }
@@ -6407,11 +6409,15 @@ ZipfsAppHookFindTclInit(
     Tcl_Obj *vfsInitScript;
     int found;
 
+    APNDebugPrint("ZipfsAppHookFindTclInit enter");
+    
     if (zipfs_literal_tcl_library) {
-	return TCL_ERROR;
+        APNDebugPrint("ZipfsAppHookFindTclInit exit - zipfs_literal_tcl_library exists");
+            return TCL_ERROR;
     }
     if (TclZipfs_Mount(NULL, archive, ZIPFS_ZIP_MOUNT, NULL)) {
 	/* Either the file doesn't exist or it is not a zip archive */
+        APNDebugPrint("ZipfsAppHookFindTclInit exit - mount failed");
 	return TCL_ERROR;
     }
 
@@ -6420,6 +6426,7 @@ ZipfsAppHookFindTclInit(
     found = Tcl_FSAccess(vfsInitScript, F_OK);
     Tcl_DecrRefCount(vfsInitScript);
     if (found == 0) {
+        APNDebugPrint("ZipfsAppHookFindTclInit exit - init.tcl in " ZIPFS_ZIP_MOUNT);
 	zipfs_literal_tcl_library = ZIPFS_ZIP_MOUNT;
 	return TCL_OK;
     }
@@ -6430,9 +6437,11 @@ ZipfsAppHookFindTclInit(
     found = Tcl_FSAccess(vfsInitScript, F_OK);
     Tcl_DecrRefCount(vfsInitScript);
     if (found == 0) {
+        APNDebugPrint("ZipfsAppHookFindTclInit exit - init.tcl in " ZIPFS_ZIP_MOUNT "/tcl_library");
 	zipfs_literal_tcl_library = ZIPFS_ZIP_MOUNT "/tcl_library";
 	return TCL_OK;
     }
+        APNDebugPrint("ZipfsAppHookFindTclInit exit - TCL_ERROR");
 
     return TCL_ERROR;
 }
