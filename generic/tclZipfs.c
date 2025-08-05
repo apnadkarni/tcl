@@ -6550,14 +6550,19 @@ TclZipfs_AppHook(
     result = Tcl_FindExecutable((*argvPtr)[0]);
 #endif
     archive = Tcl_GetNameOfExecutable();
+
     TclZipfs_Init(NULL);
     /*
      * Look for init.tcl in one of the locations mounted later in this
      * function. Errors ignored as other locations may be available.
      */
+    APNDebugPrint("TclZipfs_AppHook before calling TclZipfsLocateTclLibrary");
     if (TclZipfsLocateTclLibrary() == TCL_OK) {
+        APNDebugPrint("TclZipfs_AppHook: TclZipfsLocateTclLibrary = OK");
 	(void) TclZipfsInitEncodingDirs();
+        APNDebugPrint("TclZipfs_AppHook: After calling TclZipfsInitEncodingDirs");
     }
+    APNDebugPrint("TclZipfs_AppHook before calling TclZipfs_Mount");
 
     if (!TclZipfs_Mount(NULL, archive, ZIPFS_APP_MOUNT, NULL)) {
 	int found;

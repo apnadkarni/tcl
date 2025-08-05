@@ -554,10 +554,12 @@ TclpInitLibraryPath(
 void
 TclpSetInitialEncodings(void)
 {
+    APNDebugPrint("TclpSetInitialEncodings: Enter");
     Tcl_DString encodingName;
     Tcl_SetSystemEncoding(NULL,
 	    Tcl_GetEncodingNameFromEnvironment(&encodingName));
     Tcl_DStringFree(&encodingName);
+    APNDebugPrint("TclpSetInitialEncodings: Exit");
 }
 
 static const char *

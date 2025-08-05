@@ -2525,6 +2525,8 @@ TclBounceRefCount(
 
 #endif /* RC_INVOKED */
 
+void APNDebugPrint(const char *s);
+
 /*
  * end block for C++
  */

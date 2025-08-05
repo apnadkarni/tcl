@@ -346,7 +346,7 @@ Tcl_Init(
 	char name[4];		/* Enough space for "tcl". The *real* version
 				 * of this structure uses a flex array. */
     } PkgName;
-
+    APNDebugPrint("Tcl_Init enter");
     PkgName pkgName = {NULL, "tcl"};
     PkgName **names = (PkgName **) TclInitPkgFiles(interp);
     int result = TCL_ERROR;
@@ -400,6 +400,7 @@ Tcl_Init(
      * Note that this entire search mechanism can be bypassed by defining an
      * alternate tclInit command before calling Tcl_Init().
      */
+    APNDebugPrint("Tcl_Init before Tcl_EvalEx");
 
     result = Tcl_EvalEx(interp,
 "if {[namespace which -command tclInit] eq \"\"} {\n"
@@ -479,6 +480,7 @@ Tcl_Init(
 "  }\n"
 "}\n"
 "tclInit", TCL_INDEX_NONE, 0);
+    APNDebugPrint("Tcl_Init after Tcl_EvalEx");
 end:
     *names = (*names)->nextPtr;
     return result;

@@ -291,7 +291,7 @@ Tcl_MainEx(
     Tcl_MainLoopProc *mainLoopProc;
     Tcl_Channel chan;
     InteractiveState is;
-
+    APNDebugPrint("Tcl_MainEx enter");
     TclpSetInitialEncodings();
     if (argc > 0) {
 	--argc;			/* consume argv[0] */
@@ -299,6 +299,7 @@ Tcl_MainEx(
     }
     TclpFindExecutable((const char *)argv[0]);	/* nb: this could be NULL
 						 * w/ (eg) an empty argv supplied to execve() */
+    APNDebugPrint("Tcl_MainEx: after TclpFindExecutable");
 
     Tcl_InitMemory(interp);
 
@@ -365,7 +366,7 @@ Tcl_MainEx(
     /*
      * Invoke application-specific initialization.
      */
-
+    APNDebugPrint("Tcl_MainEx: before calling appInitProc");
     Tcl_Preserve(interp);
     if (appInitProc(interp) != TCL_OK) {
 	chan = Tcl_GetStdChannel(TCL_STDERR);

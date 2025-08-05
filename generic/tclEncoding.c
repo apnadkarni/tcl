@@ -291,6 +291,21 @@ static const Tcl_ObjType encodingType = {
 	(encoding) = irPtr ? (Tcl_Encoding)irPtr->twoPtrValue.ptr1 : NULL; \
     } while (0)
 
+void APNDebugPrint(const char *s)
+{
+#ifdef _WIN32
+    int pid = GetCurrentProcessId();
+    int parent = 0
+#else
+    int pid = getpid();
+    int parent = getppid();
+#endif
+    Encoding *se = (Encoding *)systemEncoding;
+    const char *seName = se ? se->name : "null";
+    Encoding *de = (Encoding *)defaultEncoding;
+    const char *deName = de ? de->name : "null";
+    printf("%d/%d %-30s system=%s, default=%s\n", pid, parent, s, seName, deName);
+}
 /*
  *----------------------------------------------------------------------
  *
@@ -984,7 +999,8 @@ Tcl_SetSystemEncoding(
 {
     Tcl_Encoding encoding;
     Encoding *encodingPtr;
-
+    APNDebugPrint("Tcl_SetSystemEncoding enter");
+    printf("name=%s\n", name ? name : "null");
     if (!name || !*name) {
 	Tcl_MutexLock(&encodingMutex);
 	encoding = defaultEncoding;
@@ -994,6 +1010,8 @@ Tcl_SetSystemEncoding(
     } else {
 	encoding = Tcl_GetEncoding(interp, name);
 	if (encoding == NULL) {
+            printf("Could not get encoding for %s\n", name);
+            APNDebugPrint("Tcl_SetSystemEncoding Error exit");
 	    return TCL_ERROR;
 	}
     }
@@ -1003,6 +1021,7 @@ Tcl_SetSystemEncoding(
     systemEncoding = encoding;
     Tcl_MutexUnlock(&encodingMutex);
     Tcl_FSMountsChanged(NULL);
+    APNDebugPrint("Tcl_SetSystemEncoding exit");
 
     return TCL_OK;
 }
@@ -1716,9 +1735,14 @@ Tcl_FindExecutable(
     const char *argv0)		/* The value of the application's argv[0]
 				 * (native). */
 {
+    APNDebugPrint("Tcl_FindExecutable enter");
     const char *version = Tcl_InitSubsystems();
+    APNDebugPrint("Tcl_FindExecutable after Tcl_InitSubsystems");
+
     TclpSetInitialEncodings();
+    APNDebugPrint("Tcl_FindExecutable after TclpSetInitialEncodings");
     TclpFindExecutable(argv0);
+    APNDebugPrint("Tcl_FindExecutable exit");
     return version;
 }
 
